@@ -66,3 +66,39 @@ starter-project/
 ├── webpack.dev.js          # Webpack development configuration
 └── webpack.prod.js         # Webpack production configuration
 ```
+
+```
+starter-project-with-webpack
+├─ package-lock.json
+├─ package.json
+├─ README.md
+├─ src
+│  ├─ index.html
+│  ├─ public
+│  │  ├─ favicon.png
+│  │  └─ images
+│  │     └─ logo.png
+│  ├─ scripts
+│  │  ├─ config.js
+│  │  ├─ data
+│  │  │  └─ api.js
+│  │  ├─ index.js
+│  │  ├─ pages
+│  │  │  ├─ about
+│  │  │  │  └─ about-page.js
+│  │  │  ├─ app.js
+│  │  │  └─ home
+│  │  │     └─ home-page.js
+│  │  ├─ routes
+│  │  │  ├─ routes.js
+│  │  │  └─ url-parser.js
+│  │  └─ utils
+│  │     └─ index.js
+│  └─ styles
+│     └─ styles.css
+├─ STUDENT.txt
+├─ webpack.common.js
+├─ webpack.dev.js
+└─ webpack.prod.js
+
+```
