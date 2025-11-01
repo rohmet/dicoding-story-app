@@ -1,6 +1,9 @@
-import DicodingStoryApi from "../../data/api.js";
+import RegisterPresenter from "./register-presenter.js";
+import * as DicodingStoryApi from "../../data/api.js";
 
 export default class RegisterPage {
+  #presenter = null;
+
   async render() {
     return `
       <section class="container">
@@ -19,7 +22,7 @@ export default class RegisterPage {
             <label for="password-input">Password</label>
             <input type="password" id="password-input" name="password" minlength="8" required>
           </div>
-          <button type="submit">Register</button>
+          <button type="submit" id="register-submit-button">Register</button>
         </form>
         
         <p>Sudah punya akun? <a href="#/login">Login di sini</a></p>
@@ -28,6 +31,20 @@ export default class RegisterPage {
   }
 
   async afterRender() {
+    // 1. Inisialisasi Presenter dan "suntikkan" dependencies (View, Model)
+    this.#presenter = new RegisterPresenter({
+      view: this,
+      model: DicodingStoryApi, // Menggunakan DicodingStoryApi yang sudah diimpor
+    });
+
+    // 2. Panggil fungsi privat untuk setup form
+    this.#setupForm();
+  }
+
+  /**
+   * Fungsi privat untuk setup event listener form.
+   */
+  #setupForm() {
     const registerForm = document.querySelector("#register-form");
 
     registerForm.addEventListener("submit", async (event) => {
@@ -37,21 +54,44 @@ export default class RegisterPage {
       const email = event.target.elements.email.value;
       const password = event.target.elements.password.value;
 
-      try {
-        const { error } = await DicodingStoryApi.register({
-          name,
-          email,
-          password,
-        });
-
-        if (!error) {
-          alert("Registrasi berhasil! Silakan login.");
-          window.location.hash = "#/login"; // Pindahkan ke halaman login
-        }
-      } catch (error) {
-        console.error("Error during registration:", error);
-        alert("Terjadi kesalahan saat registrasi.");
-      }
+      // 3. View HANYA mendelegasikan tugas ke Presenter.
+      await this.#presenter.doRegister({ name, email, password });
     });
+  }
+
+  // --- Metode-metode ini dipanggil oleh Presenter ---
+
+  /**
+   * Dipanggil oleh Presenter jika registrasi berhasil.
+   */
+  registerSuccess() {
+    alert("Registrasi berhasil! Silakan login.");
+    window.location.hash = "#/login"; // Pindahkan ke halaman login
+  }
+
+  /**
+   * Dipanggil oleh Presenter jika registrasi gagal.
+   */
+  registerFailed(message) {
+    console.error("Error during registration:", message);
+    alert(`Terjadi kesalahan saat registrasi: ${message}`);
+  }
+
+  /**
+   * Dipanggil oleh Presenter untuk menampilkan status loading di tombol.
+   */
+  showLoading() {
+    const button = document.querySelector("#register-submit-button");
+    button.disabled = true;
+    button.innerHTML = "Loading...";
+  }
+
+  /**
+   * Dipanggil oleh Presenter untuk menyembunyikan status loading di tombol.
+   */
+  hideLoading() {
+    const button = document.querySelector("#register-submit-button");
+    button.disabled = false;
+    button.innerHTML = "Register";
   }
 }
