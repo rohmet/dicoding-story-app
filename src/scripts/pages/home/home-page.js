@@ -6,6 +6,7 @@ import "leaflet/dist/leaflet.css";
 export default class HomePage {
   #presenter = null;
   #map = null;
+  #markers = {};
 
   async render() {
     return `
@@ -57,10 +58,13 @@ export default class HomePage {
     const storyListContainer = document.querySelector("#story-list");
     storyListContainer.innerHTML = "";
 
+    this.#markers = {};
+
     stories.forEach((story) => {
-      // --- Bagian 1: Render List Story ---
       const storyElement = document.createElement("div");
       storyElement.classList.add("story-item");
+      storyElement.style.cursor = "pointer";
+
       storyElement.innerHTML = `
         <img src="${story.photoUrl}" alt="Story oleh ${story.name}">
         <h3>${story.name}</h3>
@@ -71,9 +75,8 @@ export default class HomePage {
       `;
       storyListContainer.appendChild(storyElement);
 
-      // --- Bagian 2: Render Marker di Peta ---
       if (this.#map && story.lat && story.lon) {
-        this.#map.addMarker(
+        const marker = this.#map.addMarker(
           [story.lat, story.lon],
           {},
           {
@@ -83,7 +86,21 @@ export default class HomePage {
             )}...`,
           }
         );
+
+        this.#markers[story.id] = marker;
       }
+
+      storyElement.addEventListener("click", () => {
+        const marker = this.#markers[story.id];
+
+        if (marker) {
+          const latLng = marker.getLatLng();
+
+          this.#map.changeCamera(latLng, 13);
+
+          marker.openPopup();
+        }
+      });
     });
   }
 
