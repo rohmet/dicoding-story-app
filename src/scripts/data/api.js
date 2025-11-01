@@ -6,6 +6,7 @@ const API_ENDPOINT = {
   REGISTER: `${Config.BASE_URL}/register`,
   LOGIN: `${Config.BASE_URL}/login`,
   GET_ALL_STORIES: `${Config.BASE_URL}/stories`,
+  ADD_NEW_STORY: `${Config.BASE_URL}/stories`,
 };
 
 // export async function getData() {
@@ -75,6 +76,40 @@ const DicodingStoryApi = {
     }
 
     return { error: false, data: responseJson.listStory };
+  },
+
+  async addNewStory({ description, photo, lat, lon }) {
+    const token = AuthHelper.getAuthToken();
+    if (!token) {
+      alert("Anda harus login untuk menambah story.");
+      return { error: true, message: "Token tidak ditemukan" };
+    }
+
+    const formData = new FormData();
+    formData.append("description", description);
+    formData.append("photo", photo);
+    formData.append("lat", lat);
+    formData.append("lon", lon);
+
+    const response = await fetch(API_ENDPOINT.ADD_NEW_STORY, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        // 'Content-Type': 'multipart/form-data' JANGAN DITAMBAHKAN
+        // Biarkan browser yang mengaturnya secara otomatis
+        // agar 'boundary' ter-generate dengan benar.
+      },
+      body: formData,
+    });
+
+    const responseJson = await response.json();
+
+    if (responseJson.error) {
+      alert(responseJson.message);
+      return { error: true };
+    }
+
+    return { error: false };
   },
 };
 
