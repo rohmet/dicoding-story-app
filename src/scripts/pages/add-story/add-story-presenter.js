@@ -8,8 +8,24 @@ export default class AddStoryPresenter {
   }
 
   /**
+   * Fungsi Orkestrasi untuk memuat Peta
+   * Dipanggil oleh View saat afterRender.
+   */
+  async showFormMap() {
+    this.#view.showMapLoading();
+    try {
+      await this.#view.initialMap();
+    } catch (error) {
+      console.error("showFormMap: error:", error);
+      this.#view.showError(`Gagal memuat peta: ${error.message}`);
+    } finally {
+      this.#view.hideMapLoading();
+    }
+  }
+
+  /**
    * Fungsi untuk menangani logika upload story.
-   * Dipanggil oleh View.
+   * (Fungsi ini tidak berubah)
    */
   async uploadStory({ description, photo, lat, lon }) {
     if (!description || !photo) {

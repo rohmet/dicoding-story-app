@@ -1,17 +1,21 @@
 import HomePresenter from "./home-presenter.js";
 import * as DicodingStoryApi from "../../data/api.js";
-
-import L from "leaflet";
+import Map from "../../utils/map.js";
+import "leaflet/dist/leaflet.css";
 
 export default class HomePage {
   #presenter = null;
+  #map = null;
 
   async render() {
     return `
       <section class="container">
         <h2>Daftar Story</h2>
         
-        <div id="map-container" style="height: 400px; width: 100%; margin-bottom: 20px;"></div>
+        <div id="map-container" style="height: 400px; width: 100%; margin-bottom: 20px; position: relative;">
+          <div id="map-loader-container" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #eee; display: flex; align-items: center; justify-content: center; z-index: 1000;">
+          </div>
+        </div>
         
         <div id="loader-container"></div>
         
@@ -32,17 +36,26 @@ export default class HomePage {
   // --- Metode-metode ini dipanggil oleh Presenter ---
 
   /**
-   * Dipanggil oleh Presenter untuk menampilkan data di list dan peta.
+   * PRESENTER COMMAND: Inisialisasi Peta
    */
-  populateStoriesAndMap(stories) {
+  async initialMap() {
+    try {
+      this.#map = await Map.build("#map-container");
+    } catch (error) {
+      console.error("Gagal menginisialisasi peta:", error);
+      // Tampilkan error di dalam map-loader-container
+      document.querySelector(
+        "#map-loader-container"
+      ).innerHTML = `<p>Gagal memuat peta: ${error.message}</p>`;
+    }
+  }
+
+  /**
+   * PRESENTER COMMAND: Tampilkan List Story (dan Marker Peta)
+   */
+  populateStoriesList(stories) {
     const storyListContainer = document.querySelector("#story-list");
     storyListContainer.innerHTML = "";
-
-    const map = L.map("map-container").setView([-2.5489, 118.0149], 5);
-    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-      attribution:
-        '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-    }).addTo(map);
 
     stories.forEach((story) => {
       // --- Bagian 1: Render List Story ---
@@ -58,46 +71,49 @@ export default class HomePage {
       `;
       storyListContainer.appendChild(storyElement);
 
-      // --- Bagian 2: Render Marker dan Popup di Peta ---
-      if (story.lat && story.lon) {
-        const marker = L.marker([story.lat, story.lon]).addTo(map);
-        marker.bindPopup(`
-          <b>${story.name}</b><br>
-          ${story.description.substring(0, 30)}...
-        `);
+      // --- Bagian 2: Render Marker di Peta ---
+      if (this.#map && story.lat && story.lon) {
+        this.#map.addMarker(
+          [story.lat, story.lon],
+          {},
+          {
+            content: `<b>${story.name}</b><br>${story.description.substring(
+              0,
+              30
+            )}...`,
+          }
+        );
       }
     });
   }
 
-  /**
-   * Dipanggil oleh Presenter jika tidak ada data.
-   */
   showEmptyStories() {
     document.querySelector("#story-list").innerHTML =
       "<p>Tidak ada story untuk ditampilkan.</p>";
   }
 
-  /**
-   * Dipanggil oleh Presenter jika terjadi error.
-   */
   showError(message) {
     document.querySelector(
       "#story-list"
-    ).innerHTML = `<p>Gagal memuat data. Silakan login kembali. (Error: ${message})</p>`;
+    ).innerHTML = `<p>Gagal memuat data. (Error: ${message})</p>`;
   }
 
-  /**
-   * Dipanggil oleh Presenter untuk menampilkan status loading.
-   */
   showLoading() {
     document.querySelector("#loader-container").innerHTML =
       "<p>Memuat data story...</p>";
   }
 
-  /**
-   * Dipanggil oleh Presenter untuk menyembunyikan status loading.
-   */
   hideLoading() {
     document.querySelector("#loader-container").innerHTML = "";
+  }
+
+  showMapLoading() {
+    document.querySelector("#map-loader-container").innerHTML =
+      "<p>Memuat peta...</p>";
+    document.querySelector("#map-loader-container").style.display = "flex";
+  }
+
+  hideMapLoading() {
+    document.querySelector("#map-loader-container").style.display = "none";
   }
 }
