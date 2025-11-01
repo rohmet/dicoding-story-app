@@ -1,17 +1,12 @@
 import AddStoryPresenter from "./add-story-presenter.js";
-
-// Impor API sebagai "model"
-// Gunakan "import * as" untuk memperbaiki warning dari refaktor api.js
 import * as DicodingStoryApi from "../../data/api.js";
 
-// Impor Leaflet (tetap di sini, karena ini adalah urusan View)
 import L from "leaflet";
 
 export default class AddStoryPage {
   #map;
   #marker;
 
-  // Tambahkan properti privat untuk menyimpan instance Presenter
   #presenter = null;
 
   async render() {
@@ -52,16 +47,14 @@ export default class AddStoryPage {
     });
 
     // 2. Inisialisasi Peta
-    this.#map = L.map("map-picker").setView([-2.5489, 118.0149], 5); // Center di Indonesia
+    this.#map = L.map("map-picker").setView([-2.5489, 118.0149], 5);
     L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
       attribution:
         '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
     }).addTo(this.#map);
 
-    // 3. Tambahkan Event Listener Klik pada Peta
     this.#map.on("click", (e) => this._onMapClick(e));
 
-    // 4. Tambahkan Event Listener Submit Form
     const addStoryForm = document.querySelector("#add-story-form");
     addStoryForm.addEventListener("submit", (event) => this._onSubmit(event));
   }
@@ -73,11 +66,9 @@ export default class AddStoryPage {
   _onMapClick(e) {
     const { lat, lng } = e.latlng;
 
-    // Simpan koordinat ke input tersembunyi
     document.querySelector("#lat-input").value = lat;
     document.querySelector("#lon-input").value = lng;
 
-    // Tampilkan/Pindahkan marker
     if (this.#marker) {
       this.#marker.setLatLng(e.latlng);
     } else {
@@ -103,7 +94,6 @@ export default class AddStoryPage {
       lon: event.target.elements.lon.value,
     };
 
-    // View HANYA mendelegasikan tugas ke Presenter
     await this.#presenter.uploadStory(data);
   }
 

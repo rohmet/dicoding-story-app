@@ -1,7 +1,6 @@
 import Config from "../config";
-import AuthHelper from "../utils/auth-helper.js";
+import * as AuthHelper from "../utils/auth-helper.js";
 
-// Mengganti nama menjadi ENDPOINTS agar konsisten dengan api-2.js
 const ENDPOINTS = {
   REGISTER: `${Config.BASE_URL}/register`,
   LOGIN: `${Config.BASE_URL}/login`,
@@ -24,13 +23,10 @@ export async function register({ name, email, password }) {
 
   const responseJson = await response.json();
 
-  // Jika respons tidak ok (HTTP status BUKAN 2xx) atau ada 'error' di body
   if (!response.ok || responseJson.error) {
-    // Melempar error agar bisa ditangkap oleh try...catch di UI
     throw new Error(responseJson.message || "Registrasi gagal.");
   }
 
-  // Registrasi sukses, kembalikan respons (mungkin berisi pesan sukses)
   return responseJson;
 }
 
@@ -54,7 +50,6 @@ export async function login({ email, password }) {
     throw new Error(responseJson.message || "Login gagal.");
   }
 
-  // Sukses, kembalikan hanya data yang relevan
   return responseJson.loginResult;
 }
 
@@ -65,11 +60,8 @@ export async function login({ email, password }) {
  * Akan melempar Error jika gagal (termasuk jika token tidak valid).
  */
 export async function getAllStories() {
-  const token = AuthHelper.getAuthToken();
+  const token = AuthHelper.getAccessToken();
 
-  // Biarkan server yang memvalidasi token.
-  // Jika token null atau tidak valid, server akan merespons 401,
-  // yang akan ditangkap oleh '!response.ok'.
   const response = await fetch(ENDPOINTS.GET_ALL_STORIES, {
     method: "GET",
     headers: {
@@ -83,7 +75,6 @@ export async function getAllStories() {
     throw new Error(responseJson.message || "Gagal mengambil data stories.");
   }
 
-  // Sukses, kembalikan hanya data yang relevan
   return responseJson.listStory;
 }
 
@@ -93,12 +84,11 @@ export async function getAllStories() {
  * Akan melempar Error jika gagal.
  */
 export async function addNewStory({ description, photo, lat, lon }) {
-  const token = AuthHelper.getAuthToken();
+  const token = AuthHelper.getAccessToken();
 
   const formData = new FormData();
   formData.append("description", description);
   formData.append("photo", photo);
-  // Pastikan lat dan lon dikirim jika API memerlukannya (meski kosong)
   if (lat) formData.append("lat", lat);
   if (lon) formData.append("lon", lon);
 
@@ -106,7 +96,6 @@ export async function addNewStory({ description, photo, lat, lon }) {
     method: "POST",
     headers: {
       Authorization: `Bearer ${token}`,
-      // 'Content-Type': 'multipart/form-data' JANGAN DITAMBAHKAN
     },
     body: formData,
   });
@@ -117,6 +106,5 @@ export async function addNewStory({ description, photo, lat, lon }) {
     throw new Error(responseJson.message || "Gagal menambah story baru.");
   }
 
-  // Sukses, kembalikan respons (mungkin berisi pesan sukses)
   return responseJson;
 }

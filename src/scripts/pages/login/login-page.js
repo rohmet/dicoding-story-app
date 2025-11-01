@@ -3,7 +3,6 @@ import * as DicodingStoryApi from "../../data/api.js";
 import * as AuthHelper from "../../utils/auth-helper.js";
 
 export default class LoginPage {
-  // Tambahkan properti privat untuk menyimpan instance Presenter
   #presenter = null;
 
   async render() {

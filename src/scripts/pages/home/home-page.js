@@ -1,14 +1,9 @@
 import HomePresenter from "./home-presenter.js";
-
-// Impor API sebagai "model"
-// Gunakan "import * as" untuk memperbaiki warning dari refaktor api.js
 import * as DicodingStoryApi from "../../data/api.js";
 
-// Impor Leaflet (tetap di sini, karena ini adalah urusan View)
 import L from "leaflet";
 
 export default class HomePage {
-  // Tambahkan properti privat untuk menyimpan instance Presenter
   #presenter = null;
 
   async render() {
@@ -26,13 +21,11 @@ export default class HomePage {
   }
 
   async afterRender() {
-    // 1. Inisialisasi Presenter dan "suntikkan" dependencies (View, Model)
     this.#presenter = new HomePresenter({
       view: this,
       model: DicodingStoryApi,
     });
 
-    // 2. View HANYA mendelegasikan tugas ke Presenter.
     await this.#presenter.displayStoriesAndMap();
   }
 
@@ -43,16 +36,14 @@ export default class HomePage {
    */
   populateStoriesAndMap(stories) {
     const storyListContainer = document.querySelector("#story-list");
-    storyListContainer.innerHTML = ""; // Kosongkan
+    storyListContainer.innerHTML = "";
 
-    // Inisialisasi Peta Leaflet
     const map = L.map("map-container").setView([-2.5489, 118.0149], 5);
     L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
       attribution:
         '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
     }).addTo(map);
 
-    // Iterasi data untuk ditampilkan di List dan Peta
     stories.forEach((story) => {
       // --- Bagian 1: Render List Story ---
       const storyElement = document.createElement("div");

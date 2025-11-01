@@ -1,6 +1,3 @@
-// auth-helper.js (Versi Refaktor)
-
-// Ganti 'authToken' dengan KEY dari file config Anda jika ada
 const ACCESS_TOKEN_KEY = "authToken";
 
 /**
@@ -11,7 +8,6 @@ export function getAccessToken() {
   try {
     const accessToken = localStorage.getItem(ACCESS_TOKEN_KEY);
 
-    // Menangani kasus di mana 'null' atau 'undefined' disimpan sebagai string
     if (accessToken === "null" || accessToken === "undefined") {
       return null;
     }
@@ -66,13 +62,6 @@ export function isUserLoggedIn() {
   return !!getAccessToken();
 }
 
-// --- FUNGSI PENJAGA RUTE (Opsional tapi sangat direkomendasikan) ---
-// Catatan: Ini bergantung pada file 'url-parser.js' Anda,
-// sama seperti di file 'auth.js' yang Anda lampirkan.
-
-// import { getActiveRoute } from '../routes/url-parser';
-
-// Daftar rute yang HANYA bisa diakses saat BELUM login
 const unauthenticatedRoutesOnly = ["#/login", "#/register"];
 
 /**
@@ -81,8 +70,7 @@ const unauthenticatedRoutesOnly = ["#/login", "#/register"];
  * mereka akan dilempar ke halaman utama.
  */
 export function checkUnauthenticatedRouteOnly(page) {
-  // const url = getActiveRoute(); // Anda perlu meng-import ini
-  const url = window.location.hash; // Versi sederhana jika Anda tidak punya getActiveRoute
+  const url = window.location.hash;
   const isLogin = isUserLoggedIn();
 
   if (unauthenticatedRoutesOnly.includes(url) && isLogin) {

@@ -31,13 +31,11 @@ export default class RegisterPage {
   }
 
   async afterRender() {
-    // 1. Inisialisasi Presenter dan "suntikkan" dependencies (View, Model)
     this.#presenter = new RegisterPresenter({
       view: this,
-      model: DicodingStoryApi, // Menggunakan DicodingStoryApi yang sudah diimpor
+      model: DicodingStoryApi,
     });
 
-    // 2. Panggil fungsi privat untuk setup form
     this.#setupForm();
   }
 
@@ -54,7 +52,6 @@ export default class RegisterPage {
       const email = event.target.elements.email.value;
       const password = event.target.elements.password.value;
 
-      // 3. View HANYA mendelegasikan tugas ke Presenter.
       await this.#presenter.doRegister({ name, email, password });
     });
   }
