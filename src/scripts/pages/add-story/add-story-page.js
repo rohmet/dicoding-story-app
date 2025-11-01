@@ -1,9 +1,18 @@
+import AddStoryPresenter from "./add-story-presenter.js";
+
+// Impor API sebagai "model"
+// Gunakan "import * as" untuk memperbaiki warning dari refaktor api.js
+import * as DicodingStoryApi from "../../data/api.js";
+
+// Impor Leaflet (tetap di sini, karena ini adalah urusan View)
 import L from "leaflet";
-import DicodingStoryApi from "../../data/api.js";
 
 export default class AddStoryPage {
   #map;
   #marker;
+
+  // Tambahkan properti privat untuk menyimpan instance Presenter
+  #presenter = null;
 
   async render() {
     return `
@@ -29,29 +38,38 @@ export default class AddStoryPage {
           <input type="hidden" id="lat-input" name="lat">
           <input type="hidden" id="lon-input" name="lon">
           
-          <button type="submit">Upload Story</button>
+          <button type="submit" id="upload-submit-button">Upload Story</button>
         </form>
       </section>
     `;
   }
 
   async afterRender() {
-    // 1. Inisialisasi Peta
-    this.#map = L.map("map-picker").setView([-2.5489, 118.0149], 5); // Center di Indonesia
+    // 1. Inisialisasi Presenter dan "suntikkan" dependencies (View, Model)
+    this.#presenter = new AddStoryPresenter({
+      view: this,
+      model: DicodingStoryApi,
+    });
 
+    // 2. Inisialisasi Peta
+    this.#map = L.map("map-picker").setView([-2.5489, 118.0149], 5); // Center di Indonesia
     L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
       attribution:
         '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
     }).addTo(this.#map);
 
-    // 2. Tambahkan Event Listener Klik pada Peta (Kriteria 3 Basic)
+    // 3. Tambahkan Event Listener Klik pada Peta
     this.#map.on("click", (e) => this._onMapClick(e));
 
-    // 3. Tambahkan Event Listener Submit Form
+    // 4. Tambahkan Event Listener Submit Form
     const addStoryForm = document.querySelector("#add-story-form");
     addStoryForm.addEventListener("submit", (event) => this._onSubmit(event));
   }
 
+  /**
+   * Event handler untuk klik peta.
+   * Ini murni logika View, jadi tetap di sini.
+   */
   _onMapClick(e) {
     const { lat, lng } = e.latlng;
 
@@ -71,46 +89,56 @@ export default class AddStoryPage {
       .openPopup();
   }
 
+  /**
+   * Event handler untuk submit form.
+   * Sekarang hanya mengambil data dan mendelegasikan ke Presenter.
+   */
   async _onSubmit(event) {
     event.preventDefault();
 
-    const description = event.target.elements.description.value;
-    const photo = event.target.elements.photo.files[0];
-    const lat = event.target.elements.lat.value;
-    const lon = event.target.elements.lon.value;
+    const data = {
+      description: event.target.elements.description.value,
+      photo: event.target.elements.photo.files[0],
+      lat: event.target.elements.lat.value,
+      lon: event.target.elements.lon.value,
+    };
 
-    // Validasi sederhana
-    if (!description || !photo) {
-      alert("Deskripsi dan Gambar tidak boleh kosong!");
-      return;
-    }
-    if (photo.size > 1000000) {
-      // 1MB
-      alert("Ukuran gambar terlalu besar! Maksimal 1MB.");
-      return;
-    }
+    // View HANYA mendelegasikan tugas ke Presenter
+    await this.#presenter.uploadStory(data);
+  }
 
-    // Cek jika lat/lon belum diisi (opsional tapi disarankan)
-    if (!lat || !lon) {
-      alert("Silakan pilih lokasi di peta terlebih dahulu.");
-      return;
-    }
+  // --- Metode-metode ini dipanggil oleh Presenter ---
 
-    try {
-      const { error } = await DicodingStoryApi.addNewStory({
-        description,
-        photo,
-        lat: parseFloat(lat), // Pastikan tipe datanya float
-        lon: parseFloat(lon), // Pastikan tipe datanya float
-      });
+  /**
+   * Dipanggil oleh Presenter jika upload berhasil.
+   */
+  uploadSuccess() {
+    alert("Story berhasil ditambahkan!");
+    window.location.hash = "#/"; // Kembali ke Halaman Home
+  }
 
-      if (!error) {
-        alert("Story berhasil ditambahkan!");
-        window.location.hash = "#/"; // Kembali ke Halaman Home
-      }
-    } catch (error) {
-      console.error("Error adding story:", error);
-      alert("Terjadi kesalahan saat mengupload story.");
-    }
+  /**
+   * Dipanggil oleh Presenter jika terjadi error (validasi atau API).
+   */
+  showError(message) {
+    alert(message); // Tampilkan pesan error
+  }
+
+  /**
+   * Dipanggil oleh Presenter untuk menampilkan status loading di tombol.
+   */
+  showLoading() {
+    const button = document.querySelector("#upload-submit-button");
+    button.disabled = true;
+    button.innerHTML = "Uploading...";
+  }
+
+  /**
+   * Dipanggil oleh Presenter untuk menyembunyikan status loading di tombol.
+   */
+  hideLoading() {
+    const button = document.querySelector("#upload-submit-button");
+    button.disabled = false;
+    button.innerHTML = "Upload Story";
   }
 }
