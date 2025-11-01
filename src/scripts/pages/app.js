@@ -1,6 +1,7 @@
 import routes from "../routes/routes";
 import { getActiveRoute } from "../routes/url-parser";
 import * as AuthHelper from "../utils/auth-helper.js";
+import { transitionHelper } from "../utils/index.js";
 
 class App {
   #content = null;
@@ -57,6 +58,18 @@ class App {
 
     this.#content.innerHTML = await page.render();
     await page.afterRender();
+
+    const transition = transitionHelper({
+      updateDOM: async () => {
+        this.#content.innerHTML = await page.render();
+        await page.afterRender();
+      },
+    });
+
+    transition.updateCallbackDone.then(() => {
+      scrollTo({ top: 0, behavior: "instant" });
+      // this.#setupNavigationList();
+    });
   }
 }
 

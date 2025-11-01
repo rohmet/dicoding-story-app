@@ -18,7 +18,13 @@ body {
 }
 
 header {
-  background-color: lightskyblue;
+  background-color: #ffffff;
+  position: sticky;
+  inset-block-start: 0;
+  box-shadow: 0 1px 4px 0 #00000055;
+  z-index: 9999;
+
+  view-transition-name: header;
 }
 
 .main-header {
@@ -158,4 +164,34 @@ header {
   font-size: 0.8em;
   color: #666;
   padding-top: 8px;
+}
+
+/* 
+* 1. Tentukan @keyframes untuk animasinya 
+ */
+@keyframes full-slide-from-right {
+  from {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes full-slide-to-left {
+  to {
+    transform: translateX(-100%);
+  }
+}
+
+/* 
+* 2. Terapkan animasi ke pseudo-element view-transition
+ */
+::view-transition-old(root) {
+  animation-name: full-slide-to-left;
+  animation-duration: 900ms;
+  animation-timing-function: ease-out;
+}
+
+::view-transition-new(root) {
+  animation-name: full-slide-from-right;
+  animation-duration: 900ms;
+  animation-timing-function: ease-out;
 }
