@@ -27,15 +27,19 @@ Proyek ini adalah setup dasar untuk aplikasi web yang menggunakan webpack untuk 
 ## Scripts
 
 - Build for Production:
+
   ```shell
   npm run build
   ```
+
   Script ini menjalankan webpack dalam mode production menggunakan konfigurasi `webpack.prod.js` dan menghasilkan sejumlah file build ke direktori `dist`.
 
 - Start Development Server:
+
   ```shell
   npm run start-dev
   ```
+
   Script ini menjalankan server pengembangan webpack dengan fitur live reload dan mode development sesuai konfigurasi di`webpack.dev.js`.
 
 - Serve:
@@ -68,37 +72,56 @@ starter-project/
 ```
 
 ```
+
+```
+
 starter-project-with-webpack
 ├─ package-lock.json
 ├─ package.json
 ├─ README.md
 ├─ src
-│  ├─ index.html
-│  ├─ public
-│  │  ├─ favicon.png
-│  │  └─ images
-│  │     └─ logo.png
-│  ├─ scripts
-│  │  ├─ config.js
-│  │  ├─ data
-│  │  │  └─ api.js
-│  │  ├─ index.js
-│  │  ├─ pages
-│  │  │  ├─ about
-│  │  │  │  └─ about-page.js
-│  │  │  ├─ app.js
-│  │  │  └─ home
-│  │  │     └─ home-page.js
-│  │  ├─ routes
-│  │  │  ├─ routes.js
-│  │  │  └─ url-parser.js
-│  │  └─ utils
-│  │     └─ index.js
-│  └─ styles
-│     └─ styles.css
+│ ├─ index.html
+│ ├─ public
+│ │ ├─ favicon.png
+│ │ └─ images
+│ │ └─ logo.png
+│ ├─ scripts
+│ │ ├─ config.js
+│ │ ├─ data
+│ │ │ └─ api.js
+│ │ ├─ index.js
+│ │ ├─ pages
+│ │ │ ├─ about
+│ │ │ │ └─ about-page.js
+│ │ │ ├─ add-story
+│ │ │ │ ├─ add-story-page.js
+│ │ │ │ └─ add-story-presenter.js
+│ │ │ ├─ app.js
+│ │ │ ├─ home
+│ │ │ │ ├─ home-page.js
+│ │ │ │ └─ home-presenter.js
+│ │ │ ├─ login
+│ │ │ │ ├─ login-page.js
+│ │ │ │ └─ login-presenter.js
+│ │ │ └─ register
+│ │ │ ├─ register-page.js
+│ │ │ └─ register-presenter.js
+│ │ ├─ routes
+│ │ │ ├─ routes.js
+│ │ │ └─ url-parser.js
+│ │ ├─ templates.js
+│ │ └─ utils
+│ │ ├─ auth-helper.js
+│ │ ├─ index.js
+│ │ └─ map.js
+│ └─ styles
+│ ├─ responsives.css
+│ └─ styles.css
 ├─ STUDENT.txt
 ├─ webpack.common.js
 ├─ webpack.dev.js
 └─ webpack.prod.js
+
+```
 
 ```
