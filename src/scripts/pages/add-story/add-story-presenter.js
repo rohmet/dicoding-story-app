@@ -33,9 +33,8 @@ export default class AddStoryPresenter {
     }
 
     if (!photo) {
-      errors.photo = "Gambar tidak boleh kosong!";
+      errors.photo = "Minimal satu gambar harus di-upload atau diambil!";
     } else if (photo.size > 1000000) {
-      // 1MB
       errors.photo = "Ukuran gambar terlalu besar! Maksimal 1MB.";
     }
 

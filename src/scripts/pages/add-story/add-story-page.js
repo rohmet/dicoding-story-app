@@ -2,11 +2,17 @@ import AddStoryPresenter from "./add-story-presenter.js";
 import * as DicodingStoryApi from "../../data/api.js";
 import Map from "../../utils/map.js";
 import "leaflet/dist/leaflet.css";
+import Camera from "../../utils/camera.js";
+import { convertBase64ToBlob } from "../../utils/index.js";
 
 export default class AddStoryPage {
   #map;
   #marker;
   #presenter = null;
+  #form = null;
+  #camera = null;
+  #isCameraOpen = false;
+  #takenPictures = [];
 
   async render() {
     return `
@@ -22,9 +28,42 @@ export default class AddStoryPage {
             <span id="description-error" class="error-message"></span>
           </div>
           
-          <div>
-            <label for="photo-input">Upload Gambar (Max 1MB):</label>
-            <input type="file" id="photo-input" name="photo" accept="image/*" required>
+          <div class="form-control">
+            <label class="new-form__documentations__title">Dokumentasi</label>
+            <div>Anda dapat menyertakan foto (file atau kamera).</div>
+
+            <div class="new-form__documentations__container">
+              <div class="new-form__documentations__buttons">
+                <button id="documentations-input-button" class="btn btn-outline" type="button">
+                  Upload Gambar
+                </button>
+                <input
+                  id="documentations-input"
+                  name="documentations"
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  hidden="hidden"
+                >
+                <button id="open-camera-button" class="btn btn-outline" type="button">
+                  Buka Kamera
+                </button>
+              </div>
+
+              <div id="camera-container" class="new-form__camera__container">
+                <video id="camera-video">Video stream not available.</video>
+                <canvas id="camera-canvas" hidden></canvas>
+  
+                <div class="new-form__camera__tools">
+                  <select id="camera-select"></select>
+                  <button id="camera-take-button" class="btn" type="button">
+                    Ambil Gambar
+                  </button>
+                </div>
+              </div>
+
+              <ul id="documentations-taken-list" class="new-form__documentations__outputs"></ul>
+            </div>
             <span id="photo-error" class="error-message"></span>
           </div>
           
@@ -53,10 +92,126 @@ export default class AddStoryPage {
       model: DicodingStoryApi,
     });
 
+    this.#takenPictures = [];
+    this.#form = document.querySelector("#add-story-form");
+
     await this.#presenter.showFormMap();
 
     const addStoryForm = document.querySelector("#add-story-form");
     addStoryForm.addEventListener("submit", (event) => this._onSubmit(event));
+
+    this.#setupFormListeners();
+  }
+
+  /**
+   * FUNGSI: Menangani semua listener form
+   */
+  #setupFormListeners() {
+    document
+      .getElementById("documentations-input-button")
+      .addEventListener("click", () => {
+        this.#form.elements.namedItem("documentations-input").click();
+      });
+
+    document
+      .getElementById("documentations-input")
+      .addEventListener("change", async (event) => {
+        const files = Object.values(event.target.files);
+        const addingPromises = files.map((file) => this.#addTakenPicture(file));
+        await Promise.all(addingPromises);
+
+        await this.#populateTakenPictures();
+      });
+
+    const cameraContainer = document.getElementById("camera-container");
+    document
+      .getElementById("open-camera-button")
+      .addEventListener("click", async (event) => {
+        cameraContainer.classList.toggle("open");
+        this.#isCameraOpen = cameraContainer.classList.contains("open");
+        const button = event.currentTarget;
+
+        if (this.#isCameraOpen) {
+          button.textContent = "Tutup Kamera";
+          await this.#setupCamera();
+          this.#camera.launch();
+        } else {
+          button.textContent = "Buka Kamera";
+          if (this.#camera) this.#camera.stop();
+        }
+      });
+  }
+
+  /**
+   * FUNGSI: Inisialisasi class Camera
+   */
+  async #setupCamera() {
+    if (!this.#camera) {
+      this.#camera = new Camera({
+        video: document.getElementById("camera-video"),
+        cameraSelect: document.getElementById("camera-select"),
+        canvas: document.getElementById("camera-canvas"),
+      });
+    }
+
+    this.#camera.addCheeseButtonListener("#camera-take-button", async () => {
+      const base64Image = this.#camera.takePicture();
+      await this.#addTakenPicture(base64Image);
+      await this.#populateTakenPictures();
+    });
+  }
+
+  /**
+   * FUNGSI: Menambahkan gambar ke array #takenPictures
+   */
+  async #addTakenPicture(image) {
+    let blob;
+    if (typeof image === "string") {
+      blob = await convertBase64ToBlob(image.split(",")[1], "image/jpeg");
+    } else {
+      blob = image;
+    }
+
+    const newPicture = {
+      id: `${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
+      blob: blob,
+    };
+    this.#takenPictures = [...this.#takenPictures, newPicture];
+  }
+
+  /**
+   * FUNGSI: Menampilkan thumbnail foto yang diambil
+   */
+  async #populateTakenPictures() {
+    const listContainer = document.getElementById("documentations-taken-list");
+    listContainer.innerHTML = "";
+
+    this.#takenPictures.forEach((picture, index) => {
+      const imageUrl = URL.createObjectURL(picture.blob);
+      const li = document.createElement("li");
+      li.classList.add("new-form__documentations__outputs-item");
+      li.innerHTML = `
+        <button type="button" data-deletepictureid="${
+          picture.id
+        }" class="new-form__documentations__outputs-item__delete-btn">
+          <img src="${imageUrl}" alt="Dokumentasi ke-${index + 1}">
+        </button>
+      `;
+      listContainer.appendChild(li);
+
+      li.querySelector("button").addEventListener("click", (event) => {
+        const pictureId = event.currentTarget.dataset.deletepictureid;
+        this.#removePicture(pictureId);
+        this.#populateTakenPictures();
+      });
+    });
+  }
+
+  /**
+   * FUNGSI: Menghapus foto dari array #takenPictures
+   */
+  #removePicture(id) {
+    this.#takenPictures = this.#takenPictures.filter((pic) => pic.id !== id);
   }
 
   /**
@@ -97,14 +252,15 @@ export default class AddStoryPage {
    */
   async _onSubmit(event) {
     event.preventDefault();
-
     this.#clearValidationErrors();
 
+    const photos = this.#takenPictures.map((pic) => pic.blob);
+
     const data = {
-      description: event.target.elements.description.value,
-      photo: event.target.elements.photo.files[0],
-      lat: event.target.elements.lat.value,
-      lon: event.target.elements.lon.value,
+      description: this.#form.elements.namedItem("description").value,
+      photo: photos[0],
+      lat: this.#form.elements.namedItem("lat").value,
+      lon: this.#form.elements.namedItem("lon").value,
     };
     await this.#presenter.uploadStory(data);
   }
