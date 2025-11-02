@@ -211,3 +211,106 @@ header {
   animation-duration: 900ms;
   animation-timing-function: ease-out;
 }
+
+/* ============================
+   GAYA FORM LOGIN & REGISTER
+   ============================ */
+
+/* Penampung form (membuatnya jadi "card") */
+#login-form,
+#register-form {
+  max-width: 450px;
+  /* Atur agar card di tengah container */
+  margin: 0 auto;
+
+  /* Ini yang membuatnya terlihat seperti card */
+  padding: 2rem;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background-color: #ffffff;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+
+  /* Atur jarak antar elemen di dalam form */
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+/* Penampung untuk setiap label + input */
+#login-form div,
+#register-form div {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem; /* Jarak antara label dan input */
+}
+
+/* Gaya untuk label (Email, Password, dll.) */
+#login-form label,
+#register-form label {
+  font-weight: bold;
+  color: #374151; /* Abu-abu gelap agar mudah dibaca */
+}
+
+/* Gaya untuk semua input teks */
+#login-form input[type="text"],
+#login-form input[type="email"],
+#login-form input[type="password"],
+#register-form input[type="text"],
+#register-form input[type="email"],
+#register-form input[type="password"] {
+  width: 100%;
+  padding: 0.8rem 1rem;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 1rem;
+  transition: border-color 300ms, box-shadow 300ms;
+}
+
+/* Efek "focus" saat pengguna mengklik input */
+#login-form input:focus,
+#register-form input:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px var(--primary-shadow-color);
+}
+
+/* Gaya untuk tombol submit (Login & Register) */
+#login-submit-button,
+#register-submit-button {
+  padding: 0.85rem 1.5rem;
+  border: none;
+  border-radius: 6px;
+
+  /* Menerapkan palet warna primer! */
+  background-color: var(--primary-color);
+  color: var(--primary-text-color);
+
+  font-size: 1.1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 300ms;
+  margin-top: 0.5rem; /* Beri sedikit jarak di atas tombol */
+}
+
+/* Efek hover untuk tombol */
+#login-submit-button:hover,
+#register-submit-button:hover {
+  background-color: var(--primary-hover-color);
+}
+
+/* Menata link "Belum punya akun?" */
+.container p {
+  text-align: center;
+  margin-top: 1.5rem;
+  color: #555;
+}
+
+.container p a {
+  color: var(--primary-color);
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.container p a:hover {
+  text-decoration: underline;
+}
