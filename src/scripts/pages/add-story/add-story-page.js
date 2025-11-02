@@ -14,14 +14,18 @@ export default class AddStoryPage {
         <h2>Tambah Story Baru</h2>
         
         <form id="add-story-form">
+          <div id="form-status-message"></div>
+          
           <div>
             <label for="description-input">Deskripsi:</label>
             <textarea id="description-input" name="description" rows="5" required></textarea>
+            <span id="description-error" class="error-message"></span>
           </div>
           
           <div>
             <label for="photo-input">Upload Gambar (Max 1MB):</label>
             <input type="file" id="photo-input" name="photo" accept="image/*" required>
+            <span id="photo-error" class="error-message"></span>
           </div>
           
           <div>
@@ -31,6 +35,7 @@ export default class AddStoryPage {
                 <p>Memuat peta...</p>
               </div>
             </div>
+            <span id="location-error" class="error-message"></span>
           </div>
           
           <input type="hidden" id="lat-input" name="lat">
@@ -68,7 +73,6 @@ export default class AddStoryPage {
 
   /**
    * Event handler untuk klik peta.
-   * Ini murni logika View, jadi tetap di sini.
    */
   _onMapClick(e) {
     const { lat, lng } = e.latlng;
@@ -85,14 +89,17 @@ export default class AddStoryPage {
       }
     );
     this.#marker.openPopup();
+    document.querySelector("#location-error").textContent = "";
   }
 
   /**
    * Event handler untuk submit form.
-   * Sekarang hanya mengambil data dan mendelegasikan ke Presenter.
    */
   async _onSubmit(event) {
     event.preventDefault();
+
+    this.#clearValidationErrors();
+
     const data = {
       description: event.target.elements.description.value,
       photo: event.target.elements.photo.files[0],
@@ -102,21 +109,60 @@ export default class AddStoryPage {
     await this.#presenter.uploadStory(data);
   }
 
+  /**
+   * FUNGSI: Membersihkan semua pesan error
+   */
+  #clearValidationErrors() {
+    document.querySelector("#description-error").textContent = "";
+    document.querySelector("#photo-error").textContent = "";
+    document.querySelector("#location-error").textContent = "";
+
+    const statusContainer = document.querySelector("#form-status-message");
+    statusContainer.textContent = "";
+    statusContainer.className = "";
+  }
+
   // --- Metode-metode ini dipanggil oleh Presenter ---
+
+  /**
+   * FUNGSI: Menampilkan error validasi inline
+   */
+  showValidationErrors(errors) {
+    if (errors.description) {
+      document.querySelector("#description-error").textContent =
+        errors.description;
+    }
+    if (errors.photo) {
+      document.querySelector("#photo-error").textContent = errors.photo;
+    }
+    if (errors.location) {
+      document.querySelector("#location-error").textContent = errors.location;
+    }
+  }
 
   /**
    * Dipanggil oleh Presenter jika upload berhasil.
    */
   uploadSuccess() {
-    alert("Story berhasil ditambahkan!");
-    window.location.hash = "#/"; // Kembali ke Halaman Home
+    const statusContainer = document.querySelector("#form-status-message");
+    statusContainer.textContent = "Story berhasil ditambahkan!";
+    statusContainer.className = "status-success";
+
+    document.querySelector("#add-story-form").reset();
+    if (this.#marker) this.#marker.remove();
+
+    setTimeout(() => {
+      window.location.hash = "#/";
+    }, 2000);
   }
 
   /**
    * Dipanggil oleh Presenter jika terjadi error (validasi atau API).
    */
   showError(message) {
-    alert(message); // Tampilkan pesan error
+    const statusContainer = document.querySelector("#form-status-message");
+    statusContainer.textContent = `Terjadi kesalahan: ${message}`;
+    statusContainer.className = "status-error";
   }
 
   /**

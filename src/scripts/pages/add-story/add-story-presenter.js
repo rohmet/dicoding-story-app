@@ -9,7 +9,6 @@ export default class AddStoryPresenter {
 
   /**
    * Fungsi Orkestrasi untuk memuat Peta
-   * Dipanggil oleh View saat afterRender.
    */
   async showFormMap() {
     this.#view.showMapLoading();
@@ -25,19 +24,27 @@ export default class AddStoryPresenter {
 
   /**
    * Fungsi untuk menangani logika upload story.
-   * (Fungsi ini tidak berubah)
    */
   async uploadStory({ description, photo, lat, lon }) {
-    if (!description || !photo) {
-      this.#view.showError("Deskripsi dan Gambar tidak boleh kosong!");
-      return;
+    const errors = {};
+
+    if (!description) {
+      errors.description = "Deskripsi tidak boleh kosong!";
     }
-    if (photo.size > 1000000) {
-      this.#view.showError("Ukuran gambar terlalu besar! Maksimal 1MB.");
-      return;
+
+    if (!photo) {
+      errors.photo = "Gambar tidak boleh kosong!";
+    } else if (photo.size > 1000000) {
+      // 1MB
+      errors.photo = "Ukuran gambar terlalu besar! Maksimal 1MB.";
     }
+
     if (!lat || !lon) {
-      this.#view.showError("Silakan pilih lokasi di peta terlebih dahulu.");
+      errors.location = "Silakan pilih lokasi di peta terlebih dahulu.";
+    }
+
+    if (Object.keys(errors).length > 0) {
+      this.#view.showValidationErrors(errors);
       return;
     }
 

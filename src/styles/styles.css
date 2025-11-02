@@ -314,3 +314,33 @@ header {
 .container p a:hover {
   text-decoration: underline;
 }
+
+/* CSS untuk validasi inline dan pesan status */
+
+.error-message {
+  color: #d32f2f; /* Merah */
+  font-size: 0.9em;
+  display: block;
+  margin-top: 4px;
+}
+
+#form-status-message {
+  padding: 12px;
+  margin-bottom: 16px;
+  border-radius: 4px;
+  font-weight: bold;
+  display: block;
+  box-sizing: border-box;
+}
+
+.status-success {
+  background-color: #e8f5e9;
+  color: #2e7d32;
+  border: 1px solid #4caf50;
+}
+
+.status-error {
+  background-color: #ffebee;
+  color: #d32f2f;
+  border: 1px solid #f44336;
+}
