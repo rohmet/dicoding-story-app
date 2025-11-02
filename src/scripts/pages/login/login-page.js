@@ -8,7 +8,7 @@ export default class LoginPage {
   async render() {
     return `
       <section class="container">
-        <h2>Login Page</h2>
+        <h1>Login Page</h1>
         
         <form id="login-form">
           <div>

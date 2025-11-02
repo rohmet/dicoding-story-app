@@ -17,7 +17,7 @@ export default class AddStoryPage {
   async render() {
     return `
       <section class="container">
-        <h2>Tambah Story Baru</h2>
+        <h1>Tambah Story Baru</h1>
         
         <form id="add-story-form">
           <div id="form-status-message"></div>
@@ -29,7 +29,7 @@ export default class AddStoryPage {
           </div>
           
           <div class="form-control">
-            <label class="new-form__documentations__title">Dokumentasi</label>
+            <label for="documentations-input" class="new-form__documentations__title">Dokumentasi</label>
             <div>Anda dapat menyertakan foto (file atau kamera).</div>
 
             <div class="new-form__documentations__container">
@@ -55,7 +55,9 @@ export default class AddStoryPage {
                 <canvas id="camera-canvas" hidden></canvas>
   
                 <div class="new-form__camera__tools">
+                  <label for="camera-select" class="visually-hidden">Pilih Kamera</label>
                   <select id="camera-select"></select>
+                  
                   <button id="camera-take-button" class="btn" type="button">
                     Ambil Gambar
                   </button>

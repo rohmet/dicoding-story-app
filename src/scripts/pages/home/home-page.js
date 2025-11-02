@@ -11,7 +11,7 @@ export default class HomePage {
   async render() {
     return `
       <section class="container">
-        <h2>Daftar Story</h2>
+        <h1>Daftar Story</h1>
         
         <div id="map-container" style="height: 400px; width: 100%; margin-bottom: 20px; position: relative;">
           <div id="map-loader-container" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #eee; display: flex; align-items: center; justify-content: center; z-index: 1000;">
