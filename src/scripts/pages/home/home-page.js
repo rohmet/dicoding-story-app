@@ -116,12 +116,11 @@ export default class HomePage {
   }
 
   showLoading() {
-    document.querySelector("#loader-container").innerHTML =
-      "<p>Memuat data story...</p>";
+    document.querySelector("#loader-container").style.display = "flex";
   }
 
   hideLoading() {
-    document.querySelector("#loader-container").innerHTML = "";
+    document.querySelector("#loader-container").style.display = "none";
   }
 
   showMapLoading() {

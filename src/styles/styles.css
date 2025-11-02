@@ -450,3 +450,79 @@ header {
 #upload-submit-button:hover {
   background-color: var(--primary-hover-color);
 }
+
+/* ============================
+   GAYA HALAMAN DAFTAR STORY
+   ============================ */
+
+/* 1. Memberi gaya "card" pada penampung peta */
+#map-container {
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  overflow: hidden; /* Menjaga loader tetap di dalam border */
+  background-color: #eee; /* Warna fallback selagi peta loading */
+}
+
+/* 2. Gaya untuk Loader Peta (yang di dalam #map-container) */
+#map-loader-container {
+  /* * Gaya inline dari HTML Anda sudah bagus (position, etc.).
+   * Kita hanya perlu menambahkan spinner di tengahnya.
+   */
+  display: flex; /* Memastikan display: flex sudah ada */
+  align-items: center;
+  justify-content: center;
+}
+
+/* 3. Gaya untuk Loader Daftar Story (yang di bawah peta) */
+#loader-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 3rem 0; /* Beri jarak vertikal */
+  min-height: 200px; /* Beri tinggi minimal agar spinner terlihat */
+}
+
+/* * 4. Pseudo-element ::after untuk membuat SPINNER
+ * Kita gunakan untuk KEDUA loader
+ */
+#map-loader-container::after,
+#loader-container::after {
+  content: "";
+  display: block;
+
+  /* Ukuran spinner */
+  width: 50px;
+  height: 50px;
+
+  /* Tampilan spinner (lingkaran) */
+  border: 6px solid #f3f3f3; /* Lingkaran abu-abu muda */
+  border-top-color: var(--primary-color); /* Warna primer Anda! */
+  border-radius: 50%;
+
+  /* Animasi berputar */
+  animation: spin 1s linear infinite;
+}
+
+/* Ukuran spinner di #loader-container bisa dibuat lebih besar */
+#loader-container::after {
+  width: 60px;
+  height: 60px;
+  border-width: 8px;
+}
+
+/* * 5. Animasi untuk spinner
+ * (Perlu ditambahkan sekali saja)
+ */
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* * 6. Gaya untuk .story-list dan .story-item
+ * (Ini sudah Anda miliki di styles.css, jadi tidak perlu ditambah lagi)
+ */

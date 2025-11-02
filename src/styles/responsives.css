@@ -74,6 +74,7 @@
 
 @media screen and (width > 800px) {
   /* MAIN */
+  #map-container,
   .reports-list__map__container,
   .reports-list__map {
     height: 500px;
@@ -136,6 +137,7 @@
   }
 
   /* MAIN */
+  #map-container,
   .reports-list__map__container,
   .reports-list__map {
     height: 600px;
