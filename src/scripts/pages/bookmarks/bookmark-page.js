@@ -10,8 +10,11 @@ export default class BookmarkPage {
         <h1>Bookmarks</h1>
         <p>Daftar story yang Anda simpan secara offline.</p>
         
-        <div id="loader-container" style="display: none;"></div>
+        <div class="search-container">
+          <input id="search-input" type="search" placeholder="Cari berdasarkan nama atau deskripsi...">
+        </div>
         
+        <div id="loader-container" style="display: none;"></div>
         <div id="story-list" class="story-list"></div>
       </section>
     `;
@@ -24,6 +27,12 @@ export default class BookmarkPage {
     });
 
     await this.#presenter.displaySavedStories();
+
+    const searchInput = document.querySelector("#search-input");
+    searchInput.addEventListener("keyup", (event) => {
+      const query = event.target.value;
+      this.#presenter.searchStories(query);
+    });
   }
 
   /**
@@ -66,6 +75,11 @@ export default class BookmarkPage {
   showEmptyStories() {
     document.querySelector("#story-list").innerHTML =
       "<p>Tidak ada story yang Anda simpan.</p>";
+  }
+
+  showEmptySearchResults() {
+    document.querySelector("#story-list").innerHTML =
+      "<p>Tidak ada story yang cocok dengan pencarian Anda.</p>";
   }
 
   showError(message) {

@@ -174,11 +174,10 @@ class App {
     }
 
     this._updateNavigationLinks();
-
     await this.#setupPushNotificationToggleButton();
 
-    this.#content.innerHTML = await page.render();
-    await page.afterRender();
+    // this.#content.innerHTML = await page.render();
+    // await page.afterRender();
 
     const transition = transitionHelper({
       updateDOM: async () => {
