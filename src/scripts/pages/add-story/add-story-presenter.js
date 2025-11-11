@@ -1,5 +1,3 @@
-import { notifyNewStory } from "../../data/api";
-
 export default class AddStoryPresenter {
   #view;
   #model;
@@ -60,8 +58,6 @@ export default class AddStoryPresenter {
       });
 
       this.#view.uploadSuccess();
-
-      notifyNewStory();
     } catch (error) {
       this.#view.showError(error.message);
     } finally {

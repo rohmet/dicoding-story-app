@@ -4,12 +4,23 @@
 self.addEventListener("push", (event) => {
   console.log("[Service worker] Menerima push...");
 
-  // Data notifikasi (masih statis untuk level basic)
+  let data;
+  try {
+    // event.data.json() akan mem-parsing data JSON dari backend
+    data = event.data.json();
+  } catch (e) {
+    console.error("Push event data tidak valid:", e);
+    data = {
+      title: "Notifikasi Gagal Dimuat",
+      options: {
+        body: "Data notifikasi tidak bisa di-parsing.",
+        icon: "favicon.png",
+      },
+    };
+  }
+
   const notificationTitle = "Story Baru Ditambahkan!";
-  const notificationOptions = {
-    body: "Ada cerita baru yang menarik untuk dilihat.",
-    icon: "favicon.png", // Anda bisa ganti dengan ikon notifikasi
-  };
+  const notificationOptions = data.options;
 
   // Menampilkan notifikasi
   event.waitUntil(
