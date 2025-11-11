@@ -2,6 +2,7 @@ import HomePresenter from "./home-presenter.js";
 import * as DicodingStoryApi from "../../data/api.js";
 import Map from "../../utils/map.js";
 import "leaflet/dist/leaflet.css";
+import Database from "../../data/database.js";
 
 export default class HomePage {
   #presenter = null;
@@ -72,6 +73,10 @@ export default class HomePage {
           story.createdAt
         ).toLocaleDateString()}</p>
         <p>${story.description}</p>
+        
+        <button class="btn save-button" style="margin-top: 10px;">
+          <i class="fa-solid fa-bookmark"></i> Simpan
+        </button>
       `;
       storyListContainer.appendChild(storyElement);
 
@@ -101,7 +106,26 @@ export default class HomePage {
           marker.openPopup();
         }
       });
+
+      storyElement
+        .querySelector(".save-button")
+        .addEventListener("click", (event) => {
+          event.stopPropagation();
+          this.#handleSaveStory(story, event.target);
+        });
     });
+  }
+
+  async #handleSaveStory(story, buttonElement) {
+    try {
+      await Database.putStory(story);
+      alert("Story berhasil disimpan di Bookmarks!");
+
+      buttonElement.innerHTML = '<i class="fa-solid fa-check"></i> Tersimpan';
+      buttonElement.disabled = true;
+    } catch (error) {
+      alert(`Gagal menyimpan: ${error.message}`);
+    }
   }
 
   showEmptyStories() {

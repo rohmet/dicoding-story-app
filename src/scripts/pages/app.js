@@ -49,16 +49,15 @@ class App {
   _updateNavigationLinks() {
     const isLoggedIn = AuthHelper.isUserLoggedIn();
 
-    // 1. Buat elemen <ul> baru
     const navList = document.createElement("ul");
     navList.id = "nav-list";
-    navList.className = "nav-list"; // Ini adalah class PENTING yg dicari CSS
+    navList.className = "nav-list";
 
-    // 2. Isi <ul> dengan <li> dan <a> yang benar
     if (isLoggedIn) {
       navList.innerHTML = `
         <li><a href="#/">Home</a></li>
         <li><a href="#/add-story">Tambah Story</a></li>
+        <li><a href="#/bookmarks">Bookmarks</a></li> 
         <li><a href="#" id="logout-button">Logout</a></li>
       `;
     } else {
@@ -68,11 +67,9 @@ class App {
       `;
     }
 
-    // 3. Kosongkan <nav> dan masukkan <ul> baru ke dalamnya
     this.#navigationDrawer.innerHTML = "";
     this.#navigationDrawer.appendChild(navList);
 
-    // 4. Tambahkan event listener untuk tombol logout (kode Anda sebelumnya sudah benar)
     const logoutButton = this.#navigationDrawer.querySelector("#logout-button");
     if (logoutButton) {
       logoutButton.addEventListener("click", (event) => {
@@ -80,7 +77,6 @@ class App {
         AuthHelper.getLogout();
         window.location.hash = "#/login";
 
-        // Panggil fungsi ini lagi untuk me-refresh tampilan nav
         this._updateNavigationLinks();
       });
     }
