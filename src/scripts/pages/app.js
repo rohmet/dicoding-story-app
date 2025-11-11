@@ -2,6 +2,7 @@ import routes from "../routes/routes";
 import { getActiveRoute } from "../routes/url-parser";
 import * as AuthHelper from "../utils/auth-helper.js";
 import { transitionHelper } from "../utils/index.js";
+import { subscribe } from "../utils/notification-helper";
 
 class App {
   #content = null;
@@ -14,6 +15,8 @@ class App {
     this.#navigationDrawer = navigationDrawer;
 
     this._setupDrawer();
+
+    this.#subscribeToNotifications();
   }
 
   _setupDrawer() {
@@ -115,6 +118,12 @@ class App {
       scrollTo({ top: 0, behavior: "instant" });
       // this.#setupNavigationList();
     });
+  }
+
+  async #subscribeToNotifications() {
+    if (AuthHelper.isUserLoggedIn()) {
+      await subscribe();
+    }
   }
 }
 

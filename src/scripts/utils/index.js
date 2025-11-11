@@ -99,3 +99,24 @@ export function transitionHelper({ skipTransition = false, updateDOM }) {
 
   return document.startViewTransition(updateDOM);
 }
+
+export function isServiceWorkerAvailable() {
+  return "serviceWorker" in navigator;
+}
+
+export async function registerServiceWorker() {
+  if (!isServiceWorkerAvailable()) {
+    console.log("Service Worker API tidak didukung di browser ini.");
+    return;
+  }
+
+  try {
+    // Pastikan path-nya benar menunjuk ke file bundle webpack
+    const registration = await navigator.serviceWorker.register(
+      "/sw.bundle.js"
+    );
+    console.log("Service worker berhasil didaftarkan.", registration);
+  } catch (error) {
+    console.error("Gagal mendaftarkan service worker:", error);
+  }
+}

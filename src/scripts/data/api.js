@@ -6,6 +6,10 @@ const ENDPOINTS = {
   LOGIN: `${Config.BASE_URL}/login`,
   GET_ALL_STORIES: `${Config.BASE_URL}/stories`,
   ADD_NEW_STORY: `${Config.BASE_URL}/stories`,
+
+  SUBSCRIBE: `${Config.BASE_URL}/notifications/subscribe`, // GANTI INI
+  UNSUBSCRIBE: `${Config.BASE_URL}/notifications/unsubscribe`, // GANTI INI
+  NOTIFY_NEW_STORY: `${Config.BASE_URL}/notifications/notify-new-story`, // GANTI INI
 };
 
 /**
@@ -107,4 +111,61 @@ export async function addNewStory({ description, photo, lat, lon }) {
   }
 
   return responseJson;
+}
+
+/**
+ * Mengirim data subskripsi ke backend
+ */
+export async function subscribePushNotification({ endpoint, keys }) {
+  const token = AuthHelper.getAccessToken();
+  const response = await fetch(ENDPOINTS.SUBSCRIBE, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({ endpoint, keys }),
+  });
+  return response; // Kita hanya butuh status ok/tidak
+}
+
+/**
+ * Menghapus data subskripsi di backend
+ */
+export async function unsubscribePushNotification({ endpoint }) {
+  const token = AuthHelper.getAccessToken();
+  const response = await fetch(ENDPOINTS.UNSUBSCRIBE, {
+    method: "POST", // atau DELETE, sesuaikan dengan backend Anda
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({ endpoint }),
+  });
+  return response;
+}
+
+/**
+ * Memberi tahu backend bahwa ada story baru,
+ * agar backend mengirim notifikasi ke semua subscriber.
+ */
+export async function notifyNewStory() {
+  const token = AuthHelper.getAccessToken();
+  try {
+    const response = await fetch(ENDPOINTS.NOTIFY_NEW_STORY, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (!response.ok) {
+      console.error(
+        "Gagal memberi tahu server tentang story baru.",
+        await response.json()
+      );
+    }
+  } catch (error) {
+    console.error("Error saat notifyNewStory:", error);
+  }
 }
