@@ -1,5 +1,3 @@
-// src/scripts/utils/notification-helper.js
-
 import { convertBase64ToUint8Array } from "./index";
 import { VAPID_PUBLIC_KEY } from "../config";
 import {
@@ -58,12 +56,12 @@ export function generateSubscribeOptions() {
 
 export async function subscribe() {
   if (!(await requestNotificationPermission())) {
-    return;
+    false;
   }
 
   if (await isCurrentPushSubscriptionAvailable()) {
     console.log("Sudah berlangganan push notification.");
-    return;
+    return false;
   }
 
   console.log("Mulai berlangganan push notification...");
@@ -82,15 +80,17 @@ export async function subscribe() {
     if (!response.ok) {
       console.error("subscribe: response:", response);
       await pushSubscription.unsubscribe(); // Batalkan subskripsi jika gagal kirim ke backend
-      return;
+      return false;
     }
 
     console.log("Berhasil berlangganan push notification.");
+    return true;
   } catch (error) {
     console.error("subscribe: error:", error);
     if (pushSubscription) {
       await pushSubscription.unsubscribe();
     }
+    return false;
   }
 }
 
@@ -100,7 +100,7 @@ export async function unsubscribe() {
 
   if (!pushSubscription) {
     console.log("Belum berlangganan.");
-    return;
+    return false;
   }
 
   try {
@@ -109,14 +109,19 @@ export async function unsubscribe() {
 
     if (!response.ok) {
       console.error("unsubscribe: response:", response);
-      return;
+      return false;
     }
 
     const unsubscribed = await pushSubscription.unsubscribe();
-    if (unsubscribed) {
-      console.log("Berhasil berhenti berlangganan.");
+    if (!unsubscribed) {
+      console.error("Gagal unsubscribe dari PushManager");
+      return false;
     }
+
+    console.log("Langganan push notification berhasil dinonaktifkan.");
+    return true;
   } catch (error) {
     console.error("unsubscribe: error:", error);
+    return false;
   }
 }

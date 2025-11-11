@@ -1,29 +1,66 @@
-// src/sw.js
-
-// Event listener untuk 'push'
 self.addEventListener("push", (event) => {
   console.log("[Service worker] Menerima push...");
 
   let data;
   try {
-    // event.data.json() akan mem-parsing data JSON dari backend
     data = event.data.json();
   } catch (e) {
     console.error("Push event data tidak valid:", e);
-    data = {
-      title: "Notifikasi Gagal Dimuat",
-      options: {
-        body: "Data notifikasi tidak bisa di-parsing.",
-        icon: "favicon.png",
-      },
-    };
+    // ... (kode fallback Anda)
+    return;
   }
 
-  const notificationTitle = "Story Baru Ditambahkan!";
-  const notificationOptions = data.options;
+  const notificationTitle = data.title;
 
-  // Menampilkan notifikasi
+  // MODIFIKASI: Ambil data (storyId) dari payload
+  const notificationOptions = {
+    body: data.options.body,
+    icon: data.options.icon || "favicon.png",
+
+    // PENTING: Simpan data (termasuk ID) ke notifikasi
+    // Asumsi: backend mengirim { ..., options: { ..., data: { storyId: '...' } } }
+    data: data.options.data,
+  };
+
   event.waitUntil(
     self.registration.showNotification(notificationTitle, notificationOptions)
+  );
+});
+
+// TAMBAHKAN LISTENER BARU INI:
+self.addEventListener("notificationclick", (event) => {
+  console.log("[Service worker] Notifikasi diklik.");
+
+  // Tutup notifikasi
+  event.notification.close();
+
+  // Ambil storyId yang kita simpan di 'data'
+  const storyId = event.notification.data.storyId;
+
+  // Jika tidak ada ID, buka halaman utama saja
+  if (!storyId) {
+    console.log("Tidak ada storyId, membuka halaman utama.");
+    event.waitUntil(clients.openWindow("/#/"));
+    return;
+  }
+
+  // Jika ada ID, buka halaman detail story
+  // Ganti rute '/#/story/' jika rute Anda berbeda
+  const urlToOpen = `/#/story/${storyId}`;
+
+  event.waitUntil(
+    clients.matchAll({ type: "window" }).then((windowClients) => {
+      // Cek jika tab/jendela tersebut sudah terbuka
+      for (let i = 0; i < windowClients.length; i++) {
+        const client = windowClients[i];
+        if (client.url.endsWith(urlToOpen) && "focus" in client) {
+          return client.focus();
+        }
+      }
+      // Jika tidak terbuka, buka jendela baru
+      if (clients.openWindow) {
+        return clients.openWindow(urlToOpen);
+      }
+    })
   );
 });

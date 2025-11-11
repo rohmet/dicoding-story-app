@@ -2,7 +2,12 @@ import routes from "../routes/routes";
 import { getActiveRoute } from "../routes/url-parser";
 import * as AuthHelper from "../utils/auth-helper.js";
 import { transitionHelper } from "../utils/index.js";
-import { subscribe } from "../utils/notification-helper";
+// import { subscribe } from "../utils/notification-helper";
+import {
+  subscribe,
+  unsubscribe,
+  isCurrentPushSubscriptionAvailable,
+} from "../utils/notification-helper";
 
 class App {
   #content = null;
@@ -15,8 +20,6 @@ class App {
     this.#navigationDrawer = navigationDrawer;
 
     this._setupDrawer();
-
-    this.#subscribeToNotifications();
   }
 
   _setupDrawer() {
@@ -83,6 +86,78 @@ class App {
     }
   }
 
+  /**
+   * Mengatur tombol push notification
+   */
+  async #setupPushNotificationToggleButton() {
+    const isLoggedIn = AuthHelper.isUserLoggedIn();
+    if (isLoggedIn) {
+      const isSubscribed = await isCurrentPushSubscriptionAvailable();
+      this.#renderPushNotificationButton(isSubscribed);
+    } else {
+      // Kosongkan tombol jika tidak login
+      const buttonContainer = document.getElementById(
+        "push-notification-tools"
+      );
+      buttonContainer.innerHTML = "";
+    }
+  }
+
+  /**
+   * Merender tombol berdasarkan status subskripsi
+   */
+  #renderPushNotificationButton(isSubscribed) {
+    const buttonContainer = document.getElementById("push-notification-tools");
+
+    if (isSubscribed) {
+      buttonContainer.innerHTML = `
+        <button id="unsubscribe-button" class="btn btn-danger" aria-label="Berhenti berlangganan notifikasi">
+          <i class="fa-solid fa-bell-slash"></i> Unsubscribe
+        </button>
+      `;
+      buttonContainer
+        .querySelector("#unsubscribe-button")
+        .addEventListener("click", this.#onUnsubscribeButtonClick.bind(this));
+    } else {
+      buttonContainer.innerHTML = `
+        <button id="subscribe-button" class="btn" aria-label="Berlangganan notifikasi">
+          <i class="fa-solid fa-bell"></i> Subscribe
+        </button>
+      `;
+      buttonContainer
+        .querySelector("#subscribe-button")
+        .addEventListener("click", this.#onSubscribeButtonClick.bind(this));
+    }
+  }
+
+  /**
+   * Handler untuk tombol subscribe
+   */
+  async #onSubscribeButtonClick(event) {
+    event.target.disabled = true; // Nonaktifkan tombol sementara
+    event.target.innerHTML =
+      '<i class="fa-solid fa-spinner fa-spin"></i> Loading...';
+
+    await subscribe();
+
+    // Render ulang tombol dengan status baru
+    await this.#setupPushNotificationToggleButton();
+  }
+
+  /**
+   * Handler untuk tombol unsubscribe
+   */
+  async #onUnsubscribeButtonClick(event) {
+    event.target.disabled = true; // Nonaktifkan tombol sementara
+    event.target.innerHTML =
+      '<i class="fa-solid fa-spinner fa-spin"></i> Loading...';
+
+    await unsubscribe();
+
+    // Render ulang tombol dengan status baru
+    await this.#setupPushNotificationToggleButton();
+  }
+
   async renderPage() {
     const url = getActiveRoute();
     const page = routes[url];
@@ -104,6 +179,8 @@ class App {
 
     this._updateNavigationLinks();
 
+    await this.#setupPushNotificationToggleButton();
+
     this.#content.innerHTML = await page.render();
     await page.afterRender();
 
@@ -116,14 +193,7 @@ class App {
 
     transition.updateCallbackDone.then(() => {
       scrollTo({ top: 0, behavior: "instant" });
-      // this.#setupNavigationList();
     });
-  }
-
-  async #subscribeToNotifications() {
-    if (AuthHelper.isUserLoggedIn()) {
-      await subscribe();
-    }
   }
 }
 
