@@ -2,9 +2,10 @@ import { precacheAndRoute } from "workbox-precaching";
 import { registerRoute } from "workbox-routing";
 import { StaleWhileRevalidate, CacheFirst } from "workbox-strategies";
 import { CacheableResponsePlugin } from "workbox-cacheable-response";
-import CONFIG from "./scripts/config";
+// import CONFIG from "./scripts/config";
 
 precacheAndRoute(self.__WB_MANIFEST);
+const BASE_URL = "https://story-api.dicoding.dev/v1";
 
 // Caching untuk Google Fonts
 registerRoute(
@@ -28,7 +29,7 @@ registerRoute(
 
 // Caching untuk API (StaleWhileRevalidate)
 registerRoute(
-  ({ url }) => url.href.startsWith(CONFIG.BASE_URL),
+  ({ url }) => url.href.startsWith(BASE_URL),
   new StaleWhileRevalidate({
     cacheName: "story-api",
   })
