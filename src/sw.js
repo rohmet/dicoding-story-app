@@ -38,12 +38,18 @@ registerRoute(
 self.addEventListener("push", (event) => {
   console.log("[Service worker] Menerima push...");
 
-  let data;
+  let data = {};
   try {
     data = event.data.json();
   } catch (e) {
-    console.error("Push event data tidak valid:", e);
-    return;
+    console.error(
+      "Push event data tidak valid, gunakan text sebagai fallback:",
+      e
+    );
+    data.title = "Notifikasi";
+    data.options = {
+      body: event.data.text(),
+    };
   }
 
   const notificationTitle = data.title;
