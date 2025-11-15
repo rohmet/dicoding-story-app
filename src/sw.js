@@ -38,29 +38,47 @@ registerRoute(
 self.addEventListener("push", (event) => {
   console.log("[Service worker] Menerima push...");
 
-  let data = {};
-  try {
-    data = event.data.json();
-  } catch (e) {
-    console.error(
-      "Push event data tidak valid, gunakan text sebagai fallback:",
-      e
+  if (!event.data) {
+    // Push tanpa data
+    event.waitUntil(
+      self.registration.showNotification("Notifikasi", {
+        body: "Tidak ada isi notifikasi",
+        icon: "favicon.png",
+      })
     );
-    data.title = "Notifikasi";
-    data.options = {
-      body: event.data.text(),
-    };
+    return;
   }
 
-  const notificationTitle = data.title;
-  const notificationOptions = {
-    body: data.options.body,
-    icon: data.options.icon || "favicon.png",
-    data: data.options.data,
-  };
-
   event.waitUntil(
-    self.registration.showNotification(notificationTitle, notificationOptions)
+    (async () => {
+      let data;
+      try {
+        data = event.data.json();
+      } catch (e) {
+        console.error(
+          "Push event data tidak valid, gunakan text sebagai fallback:",
+          e
+        );
+        // Parsing text secara asinkron
+        const text = await event.data.text();
+        data = {
+          title: "Notifikasi",
+          options: { body: text, icon: "favicon.png" },
+        };
+      }
+
+      const notificationTitle = data.title || "Notifikasi";
+      const notificationOptions = {
+        body: data.options.body,
+        icon: data.options.icon || "favicon.png",
+        data: data.options.data,
+      };
+
+      await self.registration.showNotification(
+        notificationTitle,
+        notificationOptions
+      );
+    })()
   );
 });
 
