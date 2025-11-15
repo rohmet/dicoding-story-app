@@ -21,5 +21,14 @@ module.exports = merge(common, {
         warnings: true,
       },
     },
+
+    proxy: [
+      // <--- INI BENAR (ARRAY)
+      {
+        context: ["/v1"], // Tentukan konteksnya
+        target: "https://story-api.dicoding.dev",
+        changeOrigin: true,
+      },
+    ],
   },
 });
