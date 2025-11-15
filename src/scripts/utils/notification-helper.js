@@ -56,7 +56,7 @@ export function generateSubscribeOptions() {
 
 export async function subscribe() {
   if (!(await requestNotificationPermission())) {
-    false;
+    return false;
   }
 
   if (await isCurrentPushSubscriptionAvailable()) {
@@ -79,7 +79,7 @@ export async function subscribe() {
 
     if (!response.ok) {
       console.error("subscribe: response:", response);
-      await pushSubscription.unsubscribe(); // Batalkan subskripsi jika gagal kirim ke backend
+      await pushSubscription.unsubscribe();
       return false;
     }
 
@@ -94,7 +94,6 @@ export async function subscribe() {
   }
 }
 
-// Kita belum butuh unsubscribe untuk level basic, tapi tidak apa-apa jika ada di sini
 export async function unsubscribe() {
   const pushSubscription = await getPushSubscription();
 
