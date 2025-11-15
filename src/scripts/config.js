@@ -1,5 +1,10 @@
 const CONFIG = {
   BASE_URL: "https://story-api.dicoding.dev/v1",
+
+  // BASE_URL:
+  //   process.env.NODE_ENV === "development"
+  //     ? "/v1"
+  //     : "https://story-api.dicoding.dev/v1",
 };
 
 export default CONFIG;

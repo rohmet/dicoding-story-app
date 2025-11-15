@@ -20,7 +20,15 @@ module.exports = merge(common, {
         errors: true,
         warnings: true,
       },
-      // webSocketURL: "auto://0.0.0.0:0/ws",
     },
+
+    // proxy: [
+    //   // <--- INI BENAR (ARRAY)
+    //   {
+    //     context: ["/v1"], // Tentukan konteksnya
+    //     target: "https://story-api.dicoding.dev",
+    //     changeOrigin: true,
+    //   },
+    // ],
   },
 });
