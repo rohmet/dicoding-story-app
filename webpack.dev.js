@@ -20,7 +20,6 @@ module.exports = merge(common, {
         errors: true,
         warnings: true,
       },
-      // webSocketURL: "auto://0.0.0.0:0/ws",
     },
   },
 });
