@@ -22,13 +22,13 @@ module.exports = merge(common, {
       },
     },
 
-    // proxy: [
-    //   // <--- INI BENAR (ARRAY)
-    //   {
-    //     context: ["/v1"], // Tentukan konteksnya
-    //     target: "https://story-api.dicoding.dev",
-    //     changeOrigin: true,
-    //   },
-    // ],
+    proxy: [
+      // <--- INI BENAR (ARRAY)
+      {
+        context: ["/v1"], // Tentukan konteksnya
+        target: "https://story-api.dicoding.dev",
+        changeOrigin: true,
+      },
+    ],
   },
 });
